@@ -204,4 +204,3 @@ const styles = StyleSheet.create({
 export default ProductsScreen;
 
 
-Especificacion de requisitos de software
