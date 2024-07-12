@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import Icon from 'react-native-vector-icons/Feather'; // Para los iconos
 import BuscadorEscaner from '@/components/BuscadorEscaner';
 
 interface ProductsScreenProps {
   navigation?: any;
 }
+
 const handleSearch = (text) => {
   // Implement your search logic here
 };
@@ -15,10 +15,74 @@ const handleAdd = () => {
   // Implement your add logic here
 };
 
-const ProductsScreen: React.FC<ProductsScreenProps> = ({navigation}) => {
-  const enviar =()=>{
-    navigation.navigate('Details');
-  }
+// Define each icon component
+const LaptopIcon = (props) => (
+  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M3 4h18v12H3z" />
+    <Path d="M2 20h20" />
+    <Path d="M6 16h12v4H6z" />
+  </Svg>
+);
+
+const DeskIcon = (props) => (
+  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M2 3h20v18H2z" />
+    <Path d="M6 14h4v6H6z" />
+    <Path d="M14 14h4v6h-4z" />
+  </Svg>
+);
+
+const ChairIcon = (props) => (
+  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M6 4h12v14H6z" />
+    <Path d="M4 18h16" />
+    <Path d="M4 22h16" />
+  </Svg>
+);
+
+const HeadphoneIcon = (props) => (
+  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+    <Path d="M21 18a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2z" />
+    <Path d="M3 18a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
+  </Svg>
+);
+
+const KeyboardIcon = (props) => (
+  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M2 4h20v16H2z" />
+    <Path d="M6 10h.01" />
+    <Path d="M10 10h.01" />
+    <Path d="M14 10h.01" />
+    <Path d="M18 10h.01" />
+    <Path d="M6 14h12" />
+  </Svg>
+);
+
+// Define categories with correct icons
+const categories = [
+  { id_c: 1, name: 'Laptops', icon: LaptopIcon },
+  { id_c: 2, name: 'Escritorios', icon: DeskIcon },
+  { id_c: 3, name: 'Sillas', icon: ChairIcon },
+  { id_c: 4, name: 'Audifonos', icon: HeadphoneIcon },
+  { id_c: 5, name: 'Teclados', icon: KeyboardIcon },
+];
+
+const products = [
+  { id_c: 1, name: 'Gaming Laptop', price: '$1500.99', image: '/laptop.png' },
+  { id_c: 2, name: 'Office Desk', price: '$200.99', image: '/desk.png' },
+  { id_c: 3, name: 'Ergonomic Chair', price: '$120.99', image: '/chair.png' },
+  { id_c: 4, name: 'Wireless Headphones', price: '$250.99', image: '/headphones.png' },
+  { id_c: 5, name: 'Mechanical Keyboard', price: '$100.99', image: '/keyboard.png' },
+  { id_c: 1, name: 'Business Laptop', price: '$1300.99', image: '/laptop.png' },
+  { id_c: 2, name: 'Gaming Desk', price: '$350.99', image: '/desk.png' },
+];
+
+const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) => {
+  const enviar = () => {
+    navigation.navigate('Detalles');
+  };
+
   return (
     <View style={styles.container}>
       <BuscadorEscaner onSearch={handleSearch} onAdd={handleAdd} />
@@ -26,30 +90,19 @@ const ProductsScreen: React.FC<ProductsScreenProps> = ({navigation}) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Categories</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <TouchableOpacity style={styles.carouselItem}>
-              <BeefIcon style={styles.icon} />
-              <Text style={styles.carouselText}>Burgers</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.carouselItem}>
-              <PizzaIcon style={styles.icon} />
-              <Text style={styles.carouselText}>Pizza</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.carouselItem}>
-              <BeefIcon style={styles.icon} />
-              <Text style={styles.carouselText}>Meat</Text>
-            </TouchableOpacity>
+            {categories.map((category, index) => (
+              <TouchableOpacity key={index} style={[styles.carouselItem, styles.shadow]}>
+                <category.icon style={styles.icon} />
+                <Text style={styles.carouselText}>{category.name}</Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Featured Products</Text>
           <View style={styles.grid}>
-            {[
-              { name: 'Extra Meat Burger', price: '$20.99', image: '/placeholder.svg' },
-              { name: 'Supreme Pizza', price: '$15.99', image: '/placeholder.svg' },
-              { name: 'Chicken Wings', price: '$25.99', image: '/placeholder.svg' },
-              { name: 'Berry Cake', price: '$10.99', image: '/placeholder.svg' },
-            ].map((product, index) => (
-              <TouchableOpacity key={index} style={styles.product} onPress={enviar} >
+            {products.map((product, index) => (
+              <TouchableOpacity key={index} style={[styles.product, styles.shadow]} onPress={enviar}>
                 <Image source={{ uri: product.image }} style={styles.productImage} />
                 <View style={styles.productDetails}>
                   <Text style={styles.productName}>{product.name}</Text>
@@ -64,70 +117,11 @@ const ProductsScreen: React.FC<ProductsScreenProps> = ({navigation}) => {
   );
 };
 
-const SearchIcon = (props) => (
-  <Svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <Circle cx="11" cy="11" r="8" />
-    <Path d="m21 21-4.3-4.3" />
-  </Svg>
-);
-
-const BeefIcon = (props) => (
-  <Svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <Circle cx="12.5" cy="8.5" r="2.5" />
-    <Path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z" />
-    <Path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5" />
-  </Svg>
-);
-
-const PizzaIcon = (props) => (
-  <Svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <Path d="M15 11h.01" />
-    <Path d="M11 15h.01" />
-    <Path d="M16 16h.01" />
-    <Path d="m2 16 20 6-6-20A20 20 0 0 0 2 16" />
-    <Path d="M5.71 17.11a17.04 17.04 0 0 1 11.4-11.4" />
-  </Svg>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
     padding: 16,
-
   },
   main: {
     padding: 16,
@@ -146,7 +140,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#F1F1F1',
     borderRadius: 10,
-    marginRight: 16,
+    margin: 5,
   },
   icon: {
     width: 40,
@@ -164,15 +158,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   product: {
-    width: '48%',
+    width: '45%',
     backgroundColor: '#F1F1F1',
     borderRadius: 10,
-    marginBottom: 16,
+    margin: 8,
     overflow: 'hidden',
+  },
+  shadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 2,
   },
   productImage: {
     width: '100%',
-    height: 150,
+    height: 130,
     resizeMode: 'cover',
   },
   productDetails: {
@@ -196,11 +200,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButtonText: {
-    color: '#FFF',
+    color: 'white',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
 export default ProductsScreen;
-
-

@@ -13,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
     if (email === 'admin' && password === '123') {
       setError('');
       // navigation.navigate('HomeTabNavigator', { screen: 'HomeScreen' });
-      navigation.navigate('Home');
+      navigation.navigate('Inicio');
 
       setIsAuthenticated(true); // Actualizar estado de autenticación
       // navigation.navigate('HomeTabs'); // Navegar a la pantalla principal

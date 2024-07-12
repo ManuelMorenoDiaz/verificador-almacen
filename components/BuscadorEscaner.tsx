@@ -11,7 +11,7 @@ const BuscadorEscaner = ({ onSearch, onAdd }) => {
         placeholder="Buscar"
         onChangeText={onSearch}
       />
-      <TouchableOpacity style={styles.scanButton} onPress={onAdd}>
+      <TouchableOpacity style={[styles.scanButton, styles.shadow]} onPress={onAdd}>
         <Icon name="scan-outline" size={24} color="black" />
       </TouchableOpacity>
     </View>
@@ -42,6 +42,16 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     backgroundColor: '#F1F1F1',
+  },
+  shadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 2,
   },
 });
 

@@ -3,7 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 
 import Icon from 'react-native-vector-icons/Feather'; // Para los iconos
 import BuscadorEscaner from '@/components/BuscadorEscaner';
 
-const HomeScreen = () => {
+interface HomeScreenProps {
+  navigation?: any;
+  ruta?: string
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   const handleSearch = (text) => {
     // Implement your search logic here
   };
@@ -12,23 +17,28 @@ const HomeScreen = () => {
     // Implement your add logic here
   };
 
+  const enviar = (ruta) => {
+    console.log("Vergas");
+    navigation.navigate(ruta);
+  };
+
   return (
     <View style={styles.container}>
       <BuscadorEscaner onSearch={handleSearch} onAdd={handleAdd} />
       
       <ScrollView contentContainerStyle={styles.main}>
-        <TouchableOpacity style={styles.cardTop}>
-          <Text style={styles.cardText}>Sucursales</Text>
+        <TouchableOpacity style={styles.cardTop} >
+          <Text style={styles.cardText}>Informacion</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={[styles.card, styles.shadow]} onPress={() => enviar("Sucursales")}>
           <Icon name="home" size={32} color="#000" />
           <Text style={styles.cardText}>Sucursales</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={[styles.card, styles.shadow]} onPress={() => enviar("Usuarios")}>
           <Icon name="users" size={32} color="#000" />
           <Text style={styles.cardText}>Usuarios</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={[styles.card, styles.shadow]} onPress={() => enviar("Categorias")}>
           <Icon name="users" size={32} color="#000" />
           <Text style={styles.cardText}>Categorias</Text>
         </TouchableOpacity>
@@ -66,6 +76,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 8,
+  },shadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 2,
   },
   cardText: {
     marginTop: 8,
