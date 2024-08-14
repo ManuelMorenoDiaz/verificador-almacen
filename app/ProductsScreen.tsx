@@ -1,118 +1,273 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import * as ImagePicker from 'expo-image-picker';
+import { Picker } from '@react-native-picker/picker'; // Importa desde '@react-native-picker/picker'
 import BuscadorEscaner from '@/components/BuscadorEscaner';
+import { useProductContext } from './api/ProductContext';
+import { useCategoriesContext } from './api/CategoriesContext';
+import { useSucursalContext } from './api/SucursalesContext';
+import { getUserInfo } from './api/auth';
 
-interface ProductsScreenProps {
-  navigation?: any;
-}
+const ProductsScreen = ({ navigation }) => {
+  const { products, loading: productLoading, error: productError, fetchProducts, addProduct } = useProductContext();
+  const { categories, loading: categoryLoading, error: categoryError, fetchCategories } = useCategoriesContext();
+  const { sucursales, loading: sucursalLoading, error: sucursalError, fetchSucursales } = useSucursalContext();
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSucursal, setSelectedSucursal] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    nombre: '',
+    descripcion: '',
+    imagen: '',
+    cantidad: '',
+    id_categoria: '',
+    id_sucursal: '',
+    precio: '',
+  });
 
-const handleSearch = (text) => {
-  // Implement your search logic here
-};
+  const [userRole, setUserRole] = useState('');
 
-const handleAdd = () => {
-  // Implement your add logic here
-};
 
-// Define each icon component
-const LaptopIcon = (props) => (
-  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M3 4h18v12H3z" />
-    <Path d="M2 20h20" />
-    <Path d="M6 16h12v4H6z" />
-  </Svg>
-);
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const info = await getUserInfo();
+        if (info && info.rol) {
+          setUserRole(info.rol);
+        } else {
+          console.log('No se pudo obtener la información del usuario.');
+        }
+      } catch (error) {
+        console.error('Error al obtener la información del usuario:', error);
+      }
+    };
 
-const DeskIcon = (props) => (
-  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M2 3h20v18H2z" />
-    <Path d="M6 14h4v6H6z" />
-    <Path d="M14 14h4v6h-4z" />
-  </Svg>
-);
+    fetchUserInfo();
+    fetchProducts();
+    fetchCategories();
+    fetchSucursales();
+  }, []);
 
-const ChairIcon = (props) => (
-  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M6 4h12v14H6z" />
-    <Path d="M4 18h16" />
-    <Path d="M4 22h16" />
-  </Svg>
-);
-
-const HeadphoneIcon = (props) => (
-  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M3 18v-6a9 9 0 0 1 18 0v6" />
-    <Path d="M21 18a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2z" />
-    <Path d="M3 18a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
-  </Svg>
-);
-
-const KeyboardIcon = (props) => (
-  <Svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M2 4h20v16H2z" />
-    <Path d="M6 10h.01" />
-    <Path d="M10 10h.01" />
-    <Path d="M14 10h.01" />
-    <Path d="M18 10h.01" />
-    <Path d="M6 14h12" />
-  </Svg>
-);
-
-// Define categories with correct icons
-const categories = [
-  { id_c: 1, name: 'Laptops', icon: LaptopIcon },
-  { id_c: 2, name: 'Escritorios', icon: DeskIcon },
-  { id_c: 3, name: 'Sillas', icon: ChairIcon },
-  { id_c: 4, name: 'Audifonos', icon: HeadphoneIcon },
-  { id_c: 5, name: 'Teclados', icon: KeyboardIcon },
-];
-
-const products = [
-  { id_c: 1, name: 'Gaming Laptop', price: '$1500.99', image: '/laptop.png' },
-  { id_c: 2, name: 'Office Desk', price: '$200.99', image: '/desk.png' },
-  { id_c: 3, name: 'Ergonomic Chair', price: '$120.99', image: '/chair.png' },
-  { id_c: 4, name: 'Wireless Headphones', price: '$250.99', image: '/headphones.png' },
-  { id_c: 5, name: 'Mechanical Keyboard', price: '$100.99', image: '/keyboard.png' },
-  { id_c: 1, name: 'Business Laptop', price: '$1300.99', image: '/laptop.png' },
-  { id_c: 2, name: 'Gaming Desk', price: '$350.99', image: '/desk.png' },
-];
-
-const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) => {
-  const enviar = () => {
-    navigation.navigate('Detalles');
+  const handleAddProduct = async () => {
+    if (newProduct.nombre && newProduct.descripcion && newProduct.imagen && newProduct.cantidad && newProduct.id_categoria && newProduct.id_sucursal && newProduct.precio) {
+      await addProduct({
+        nombre: newProduct.nombre,
+        descripcion: newProduct.descripcion,
+        imagen: newProduct.imagen,
+        cantidad: parseInt(newProduct.cantidad),
+        id_categoria: parseInt(newProduct.id_categoria),
+        id_sucursal: parseInt(newProduct.id_sucursal),
+        precio: parseFloat(newProduct.precio),
+      });
+      setModalVisible(false);
+      setNewProduct({
+        nombre: '',
+        descripcion: '',
+        imagen: '',
+        cantidad: '',
+        id_categoria: '',
+        id_sucursal: '',
+        precio: '',
+      });
+    }
   };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const imageUri = result.assets[0].uri;
+      setNewProduct({ ...newProduct, imagen: imageUri });
+    }
+  };
+
+  const handleSearch = (text) => {
+    // Implementa tu lógica de búsqueda aquí
+  };
+
+  const CategoryIcon = ({ iconName, style }) => (
+    <Icon name={iconName} style={style} size={24} color="black" />
+  );
+
+  const iconMappings = {
+    "prueba Categoria imagen": "image",
+    "electronics_icon": "cpu",
+    "furniture_icon": "box",
+    "clothing_icon": "shopping-bag",
+    "appliances_icon": "coffee",
+    "books_icon": "book-open",
+    "toys_icon": "gift",
+    "sports_icon": "activity",
+    "beauty_icon": "heart",
+    "gardening_icon": "sun",
+  };
+
+  const enviar = (product) => {
+    navigation.navigate('Detalles', { product });
+  };
+
+  const filteredProducts = selectedCategory
+    ? products.filter(product => product.id_categoria === selectedCategory)
+    : products;
+
+  if (productLoading || categoryLoading || sucursalLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Cargando...</Text>
+      </View>
+    );
+  }
+
+  if (productError || categoryError || sucursalError) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Error al cargar datos: {productError?.message || categoryError?.message || sucursalError?.message}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <BuscadorEscaner onSearch={handleSearch} onAdd={handleAdd} />
+      <BuscadorEscaner onSearch={handleSearch} />
+      {userRole === 'Admin'  || userRole === 'Gerente'  && (
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Icon name="plus" size={24} color="white" />
+        <Text style={styles.addButtonText}>Añadir Producto</Text>
+      </TouchableOpacity>
+      )}
       <ScrollView style={styles.main}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
+          <Text style={styles.sectionTitle}>Categorías</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {categories.map((category, index) => (
-              <TouchableOpacity key={index} style={[styles.carouselItem, styles.shadow]}>
-                <category.icon style={styles.icon} />
-                <Text style={styles.carouselText}>{category.name}</Text>
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.carouselItem,
+                  selectedCategory === category.id_categoria && styles.selectedCategory
+                ]}
+                onPress={() => setSelectedCategory(category.id_categoria === selectedCategory ? null : category.id_categoria)}
+              >
+                <CategoryIcon iconName={iconMappings[category.imagen]} style={styles.icon} />
+                <Text style={styles.carouselText}>{category.nombre}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Featured Products</Text>
+          <Text style={styles.sectionTitle}>Productos Destacados</Text>
           <View style={styles.grid}>
-            {products.map((product, index) => (
-              <TouchableOpacity key={index} style={[styles.product, styles.shadow]} onPress={enviar}>
-                <Image source={{ uri: product.image }} style={styles.productImage} />
+            {filteredProducts.map((product, index) => (
+              <TouchableOpacity key={index} style={styles.product} onPress={() => enviar(product)}>
+                {product.imagen ? (
+                  <Image source={{ uri: `${product.imagen}` }} style={styles.productImage} />
+                ) : (
+                  <View style={styles.placeholderImage} />
+                )}
                 <View style={styles.productDetails}>
-                  <Text style={styles.productName}>{product.name}</Text>
-                  <Text style={styles.productPrice}>{product.price}</Text>
+                  <Text style={styles.productName}>{product.nombre}</Text>
+                  <Text style={styles.productPrice}>${product.precio}</Text>
                 </View>
               </TouchableOpacity>
             ))}
           </View>
         </View>
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Añadir Nuevo Producto</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre del producto"
+              placeholderTextColor="#888"
+              value={newProduct.nombre}
+              onChangeText={(text) => setNewProduct({ ...newProduct, nombre: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Descripción del producto"
+              placeholderTextColor="#888"
+              value={newProduct.descripcion}
+              onChangeText={(text) => setNewProduct({ ...newProduct, descripcion: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Cantidad del producto"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={newProduct.cantidad}
+              onChangeText={(text) => setNewProduct({ ...newProduct, cantidad: text })}
+            />
+            <View style={styles.pickerContainer}>
+              <Text style={styles.pickerLabel}>Categoría</Text>
+              <Picker
+                selectedValue={selectedCategory}
+                onValueChange={(itemValue) => {
+                  setSelectedCategory(itemValue);
+                  setNewProduct({ ...newProduct, id_categoria: itemValue.toString() });
+                }}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecciona una categoría" value="" />
+                {categories.map((category) => (
+                  <Picker.Item key={category.id_categoria} label={category.nombre} value={category.id_categoria} />
+                ))}
+              </Picker>
+            </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.pickerLabel}>Sucursal</Text>
+              <Picker
+                selectedValue={selectedSucursal}
+                onValueChange={(itemValue) => {
+                  setSelectedSucursal(itemValue);
+                  setNewProduct({ ...newProduct, id_sucursal: itemValue.toString() });
+                }}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecciona una sucursal" value="" />
+                {sucursales.map((sucursal) => (
+                  <Picker.Item key={sucursal.id_sucursal} label={sucursal.nombre} value={sucursal.id_sucursal} />
+                ))}
+              </Picker>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Precio del producto"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={newProduct.precio}
+              onChangeText={(text) => setNewProduct({ ...newProduct, precio: text })}
+            />
+            <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+              <Text style={styles.imageButtonText}>Seleccionar Imagen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.submitButton} onPress={handleAddProduct}>
+              <Text style={styles.submitButtonText}>Añadir Producto</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Icon name="x" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -121,88 +276,181 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 16,
+    padding:10,
+    paddingBottom:70,
   },
-  main: {
-    padding: 16,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  section: {
-    marginBottom: 32,
+  loadingText: {
+    fontSize: 18,
+    color: '#333',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  carouselItem: {
+  addButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#F1F1F1',
-    borderRadius: 10,
-    margin: 5,
+    padding: 10,
+    backgroundColor: 'black',
+    borderRadius: 5,
+    margin: 10,
   },
-  icon: {
-    width: 40,
-    height: 40,
-    marginBottom: 8,
-    color: '#F97316',
-  },
-  carouselText: {
+  addButtonText: {
+    color: '#fff',
+    marginLeft: 5,
     fontSize: 18,
-    fontWeight: '500',
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  main: {
+    flex: 1,
   },
-  product: {
-    width: '45%',
-    backgroundColor: '#F1F1F1',
-    borderRadius: 10,
-    margin: 8,
-    overflow: 'hidden',
+  section: {
+    padding: 10,
   },
-  shadow: {
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  carouselItem: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 3,
+    marginVertical:10,
+    marginRight: 10,
+    alignItems: 'center',
+    
     shadowColor: '#000',
+    elevation: 5,
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  
+  },
+  selectedCategory: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 3,
+    padding: 10,
+
+  },
+  icon: {
+    marginBottom: 5,
+  },
+  carouselText: {
+    fontSize: 16,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  product: {
+    width: '48%',
+    backgroundColor: '#fff',
+    margin: '1%',
+    borderRadius: 5,
+    overflow: 'hidden',
     elevation: 2,
+
+    padding:5,
+
+    shadowColor: '#000',
+    elevation: 2,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   productImage: {
     width: '100%',
-    height: 130,
-    resizeMode: 'cover',
+    height: 150,
+  },
+  placeholderImage: {
+    width: '100%',
+    height: 150,
+    backgroundColor: '#ddd',
   },
   productDetails: {
-    padding: 16,
+    padding: 10,
   },
   productName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
   },
   productPrice: {
     fontSize: 16,
-    color: '#999',
-    marginBottom: 8,
+    color: '#007BFF',
   },
-  addButton: {
-    backgroundColor: '#F97316',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    marginBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    fontSize: 16,
+  },
+  pickerContainer: {
+    marginBottom: 20,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  picker: {
+    height: 50,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+  },
+  imageButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
     borderRadius: 5,
     alignItems: 'center',
+    marginBottom: 20,
   },
-  addButtonText: {
-    color: 'white',
+  imageButtonText: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+  },
+  submitButton: {
+    backgroundColor: '#28A745',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
 });
 

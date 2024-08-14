@@ -1,85 +1,63 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
-import { useAuth } from './AuthContext';
+import { useAuth } from './AuthContext'; 
+import { login as apiLogin, getUserInfo } from './api/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
-  const { setIsAuthenticated } = useAuth();
+  const { login } = useAuth(); 
 
-  const handleLogin = () => {
-    if (email === 'admin' && password === '123') {
+  const handleLogin = async () => {
+    const result = await apiLogin(correo, contrasena);
+    if (result && result.token) {
       setError('');
-      // navigation.navigate('HomeTabNavigator', { screen: 'HomeScreen' });
-      navigation.navigate('Inicio');
-
-      setIsAuthenticated(true); // Actualizar estado de autenticación
-      // navigation.navigate('HomeTabs'); // Navegar a la pantalla principal
+      await AsyncStorage.setItem('userToken', result.token);
+      login(result.token); // Usa 'login' en lugar de 'setIsAuthenticated'
+      navigation.navigate('HomeTabs');
     } else {
-      setError('Invalid email or password');
+      setError('Invalid correo or password');
     }
   };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image
-          source={{ uri: 'https://via.placeholder.com/100' }}
-          style={styles.logo}
-        />
+      <Icon name="diamond-outline" size={150} color="black" />
+
         <Text style={styles.title}>FOREVER 21</Text>
       </View>
       <View style={styles.form}>
         <TextInput
           style={styles.input}
-          onChangeText={setEmail}
-          value={email}
+          onChangeText={setCorreo}
+          value={correo}
           placeholder="Email"
           keyboardType="email-address"
         />
         <TextInput
           style={styles.input}
-          onChangeText={setPassword}
-          value={password}
+          onChangeText={setContrasena}
+          value={contrasena}
           placeholder="Password"
           secureTextEntry
         />
-        <TouchableOpacity style={styles.forgotPassword}>
-          <Text style={styles.forgotPasswordText}>Forget Password?</Text>
-        </TouchableOpacity>
+
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.divider}>
-        <View style={styles.line} />
-        <Text style={styles.orText}>OR</Text>
-        <View style={styles.line} />
-      </View>
-      <TouchableOpacity style={styles.socialButton}>
-        <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={styles.icon}>
-          <Circle cx="12" cy="12" r="10" />
-          <Circle cx="12" cy="12" r="4" />
-          <Line x1="21.17" y1="8" x2="12" y2="8" />
-          <Line x1="3.95" y1="6.06" x2="8.54" y2="14" />
-          <Line x1="10.88" y1="21.94" x2="15.46" y2="14" />
-        </Svg>
-        <Text style={styles.socialButtonText}>Login with Google</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.socialButton}>
-        <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={styles.icon}>
-          <Path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-        </Svg>
-        <Text style={styles.socialButtonText}>Login with Facebook</Text>
-      </TouchableOpacity>
-      <Text style={styles.footerText}>
-        Don't have an account? <Text style={styles.signUpText}>Sign up</Text>
-      </Text>
+      
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -100,9 +78,9 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 8,
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#F97316', // Color naranja
+    color: 'black', // Color naranja
     textAlign: 'center',
   },
   form: {
@@ -111,12 +89,19 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
+
     borderRadius: 25,
     paddingHorizontal: 16,
     marginVertical: 8,
     backgroundColor: '#F5F5F5',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   forgotPassword: {
     alignItems: 'flex-end',
@@ -132,6 +117,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   buttonText: {
     color: 'white',

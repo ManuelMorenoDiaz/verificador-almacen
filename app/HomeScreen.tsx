@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 8,
-  },shadow: {
+  },
+  shadow: {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

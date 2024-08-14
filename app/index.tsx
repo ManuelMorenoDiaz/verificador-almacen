@@ -1,3 +1,4 @@
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet } from 'react-native';
@@ -12,14 +13,31 @@ import OrdenesScreen from './OrdenesScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { AuthProvider, useAuth } from './AuthContext';
-
+import { ProductProvider } from './api/ProductContext';
+import { CategoryProvider } from './api/CategoriesContext';
+import { SucursalProvider } from './api/SucursalesContext';
+import { UserProvider } from './api/UsersContext';
+import { UsuarioSucursalProvider } from './api/UsuariosSucursalesContext';
+import { OrdenProvider } from './api/OrdenesContext';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
     <AuthProvider>
-      <AppNavigator />
+      <SucursalProvider>
+      <UserProvider>
+      <UsuarioSucursalProvider>
+      <CategoryProvider>
+      <ProductProvider>
+      <OrdenProvider>
+        <AppNavigator />
+      </OrdenProvider>
+      </ProductProvider>
+      </CategoryProvider>
+      </UsuarioSucursalProvider>
+      </UserProvider>
+      </SucursalProvider>
     </AuthProvider>
   );
 }
@@ -141,7 +159,6 @@ function ProductsStackNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Productos" component={ProductsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Detalles" component={DetailsScreen} options={{ headerShown: false }} />
-
     </Stack.Navigator>
   );
 }
